@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>湯守 (Yumori) — 湯船に浸かる習慣、続ける記録</title>
+<meta name="description" content="湯船に浸かった日を記録して、連続日数を積み上げていく静かな習慣アプリ。サボると画面の湯が濁っていきます。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg0: #0C1729;
+    --bg1: #101E36;
+    --surface: rgba(245,238,225,0.035);
+    --surface-line: rgba(245,238,225,0.09);
+    --ink: #F5EEE1;
+    --ink-mid: #C0C9DB;
+    --ink-dim: #8B97AE;
+    --gold: #E3A44C;
+    --teal: #6FB7B0;
+    --disp: 'Shippori Mincho', serif;
+    --body: 'Zen Kaku Gothic New', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin: 0;
+    background:
+      radial-gradient(1100px 640px at 82% -12%, #1E3A69 0%, transparent 58%),
+      radial-gradient(900px 560px at -14% 30%, #16294B 0%, transparent 55%),
+      linear-gradient(180deg, var(--bg1) 0%, var(--bg0) 100%);
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: var(--body);
+    font-weight: 400;
+    line-height: 2.0;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection{ background: rgba(227,164,76,0.35); }
+  .wrap{ max-width: 860px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- ナビ ---------- */
+  nav{
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: rgba(14,25,45,0.66);
+    border-bottom: 1px solid var(--surface-line);
+  }
+  .nav-in{
+    max-width: 860px; margin: 0 auto; padding: 0 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 58px;
+  }
+  .back{
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none; color: var(--ink-dim);
+    font-size: 12.5px; letter-spacing: 0.12em;
+    transition: color .2s ease;
+  }
+  .back:hover{ color: var(--gold); }
+  .back::before{ content: "←"; color: var(--gold); }
+  .nav-right{
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.26em; color: var(--ink-dim);
+  }
+
+  /* ---------- ヒーロー ---------- */
+  header{
+    position: relative;
+    padding: 100px 0 80px;
+    overflow: hidden;
+  }
+  .steam-field{
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  .steam{
+    position: absolute; bottom: -20px;
+    width: 5px; border-radius: 6px;
+    background: linear-gradient(180deg, transparent, rgba(245,238,225,0.34));
+    opacity: 0;
+    animation: rise 6.5s ease-in infinite;
+  }
+  @keyframes rise{
+    0%{ opacity:0; transform: translateY(0) scaleY(0.5); }
+    16%{ opacity:0.6; }
+    80%{ opacity:0.08; }
+    100%{ opacity:0; transform: translateY(-46vh) translateX(var(--drift,0px)) scaleY(1.5); }
+  }
+  .hero-grid{
+    position: relative;
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 40px; align-items: center;
+  }
+  .hero-eyebrow{
+    display: flex; align-items: center; gap: 14px;
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.3em; color: var(--teal);
+    margin-bottom: 26px;
+  }
+  .hero-eyebrow::after{
+    content: ""; height: 1px; width: 60px;
+    background: linear-gradient(90deg, var(--teal), transparent);
+  }
+  h1{
+    font-family: var(--disp); font-weight: 800;
+    font-size: clamp(52px, 11vw, 84px);
+    line-height: 1.2; letter-spacing: 0.14em;
+    margin: 0 0 14px;
+  }
+  .tagline{
+    font-family: var(--disp); font-weight: 500;
+    color: var(--gold); font-size: 16px; letter-spacing: 0.18em;
+    margin: 0 0 26px;
+  }
+  .lead{
+    color: var(--ink-mid); font-weight: 300;
+    max-width: 30em; margin: 0 0 30px; font-size: 14.5px;
+  }
+  .badges{ display: flex; gap: 12px; flex-wrap: wrap; }
+  .badge{
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em;
+    padding: 7px 16px; border-radius: 999px;
+  }
+  .badge.review{ color: var(--gold); border: 1px solid rgba(227,164,76,0.45); }
+  .badge.review .dot{
+    width: 5px; height: 5px; border-radius: 50%; background: currentColor;
+    animation: pulse 2.4s ease infinite;
+  }
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.25; } }
+  .badge.plain{ color: var(--ink-dim); border: 1px solid var(--surface-line); }
+
+  /* 湯船イラスト */
+  .hero-tub{ position: relative; width: 250px; flex: none; }
+  .hero-tub svg{ width: 100%; height: auto; display: block; }
+  .tub-steam{ position: absolute; inset: auto 0 62% 0; height: 120px; }
+  .tub-steam .steam{ animation-duration: 4.6s; }
+  @keyframes rise-small{
+    0%{ opacity:0; transform: translateY(0) scaleY(0.5); }
+    18%{ opacity:0.65; }
+    80%{ opacity:0.1; }
+    100%{ opacity:0; transform: translateY(-110px) translateX(var(--drift,0px)) scaleY(1.4); }
+  }
+  .tub-steam .steam{ animation-name: rise-small; }
+
+  /* ---------- セクション ---------- */
+  section{ padding: 64px 0; }
+  .sec-head{ display: flex; align-items: baseline; gap: 18px; margin-bottom: 8px; }
+  .sec-num{ font-family: var(--mono); font-size: 12px; color: var(--gold); letter-spacing: 0.12em; }
+  h2{
+    font-family: var(--disp); font-weight: 600;
+    font-size: 23px; letter-spacing: 0.1em; margin: 0;
+  }
+  .sec-rule{
+    height: 1px; margin: 22px 0 40px;
+    background: linear-gradient(90deg, var(--surface-line) 0%, transparent 100%);
+  }
+
+  /* ---------- スクリーンショット ---------- */
+  .shots{
+    display: flex; gap: 20px;
+    overflow-x: auto; scrollbar-width: none;
+    padding: 12px 2px 22px;
+  }
+  .shots::-webkit-scrollbar{ display: none; }
+  .shots figure{ margin: 0; flex: none; }
+  .shots img{
+    width: 208px; border-radius: 20px;
+    border: 1px solid rgba(245,238,225,0.14);
+    box-shadow: 0 20px 48px rgba(0,0,0,0.5);
+    transition: transform .35s cubic-bezier(.2,.7,.2,1);
+    display: block;
+  }
+  .shots img:hover{ transform: translateY(-8px); }
+  .shots figcaption{
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em;
+    color: var(--ink-dim); text-align: center; margin-top: 14px;
+  }
+
+  /* ---------- 特徴 ---------- */
+  .features{ display: grid; gap: 22px; }
+  .feature{
+    background: var(--surface);
+    border: 1px solid var(--surface-line);
+    border-radius: 20px;
+    padding: 30px 30px 26px;
+    position: relative; overflow: hidden;
+  }
+  .feature::before{
+    content: "";
+    position: absolute; inset: 0 0 auto 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(227,164,76,0.4), transparent);
+  }
+  .feature .f-num{
+    font-family: var(--mono); font-size: 11px;
+    color: var(--teal); letter-spacing: 0.2em;
+  }
+  .feature h3{
+    font-family: var(--disp); font-weight: 600;
+    font-size: 18px; letter-spacing: 0.08em;
+    margin: 8px 0 12px;
+  }
+  .feature p{ font-size: 13.5px; font-weight: 300; color: var(--ink-mid); margin: 0; }
+  .feature p strong{ color: var(--gold); font-weight: 500; }
+
+  /* ---------- プライバシー ---------- */
+  .privacy-box{
+    background: var(--surface);
+    border: 1px solid var(--surface-line);
+    border-radius: 20px;
+    padding: 36px 34px;
+  }
+  .privacy-box p{ font-size: 14px; font-weight: 300; color: var(--ink-mid); margin: 0 0 20px; }
+  .privacy-box strong{ color: var(--ink); font-weight: 500; }
+  .gold-link{
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12.5px; letter-spacing: 0.1em;
+    color: var(--gold); text-decoration: none;
+    border: 1px solid rgba(227,164,76,0.4);
+    border-radius: 999px; padding: 10px 22px;
+    transition: background .2s ease, border-color .2s ease;
+  }
+  .gold-link::after{ content: "→"; transition: transform .2s ease; }
+  .gold-link:hover{ background: rgba(227,164,76,0.1); border-color: var(--gold); }
+  .gold-link:hover::after{ transform: translateX(3px); }
+
+  footer{
+    padding: 60px 0 64px; text-align: center;
+    border-top: 1px solid var(--surface-line);
+    margin-top: 30px;
+  }
+  footer .enso{
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1.5px solid rgba(227,164,76,0.55);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--disp); font-size: 15px; color: var(--gold);
+    margin-bottom: 16px;
+  }
+  footer .home-link{
+    display: block; margin-bottom: 20px;
+    color: var(--ink-dim); text-decoration: none;
+    font-size: 12.5px; letter-spacing: 0.12em;
+    transition: color .2s ease;
+  }
+  footer .home-link:hover{ color: var(--gold); }
+  footer p{
+    font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: 0.2em; color: var(--ink-dim); margin: 0;
+  }
+
+  /* ---------- 出現 ---------- */
+  .reveal{ opacity: 0; transform: translateY(18px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in{ opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity: 1; transform: none; transition: none; }
+    .steam{ animation: none !important; opacity: 0 !important; }
+    .shots img{ transition: none; }
+  }
+
+  @media (max-width: 640px){
+    header{ padding: 70px 0 56px; }
+    .hero-grid{ grid-template-columns: 1fr; }
+    .hero-tub{ width: 210px; margin: 10px auto 0; }
+    section{ padding: 52px 0; }
+    .shots img{ width: 178px; }
+    .feature{ padding: 24px 22px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a class="back" href="../">小道具舎</a>
+    <span class="nav-right">YUMORI</span>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header>
+    <div class="steam-field" aria-hidden="true">
+      <span class="steam" style="left:6%;  height:70px; --drift:-14px; animation-delay:0s"></span>
+      <span class="steam" style="left:22%; height:52px; --drift:10px;  animation-delay:2.2s"></span>
+      <span class="steam" style="left:47%; height:80px; --drift:-8px;  animation-delay:0.9s"></span>
+      <span class="steam" style="left:66%; height:58px; --drift:14px;  animation-delay:3.4s"></span>
+      <span class="steam" style="left:88%; height:66px; --drift:-10px; animation-delay:1.6s"></span>
+    </div>
+
+    <div class="hero-grid">
+      <div>
+        <div class="hero-eyebrow">FURO-CAN CANCEL LOG</div>
+        <h1>湯守</h1>
+        <p class="tagline">風呂キャンをキャンセルせよ。</p>
+        <p class="lead">
+          「今日はもういいか」とシャワーで済ませてしまう夜に、ひと区切りを。
+          湯船に浸かった日を記録して、連続日数を積み上げていく静かな習慣アプリです。
+        </p>
+        <div class="badges">
+          <span class="badge review"><span class="dot"></span>IN REVIEW</span>
+          <span class="badge plain">iOS 16+</span>
+          <span class="badge plain">FREE</span>
+        </div>
+      </div>
+
+      <div class="hero-tub" aria-hidden="true">
+        <div class="tub-steam">
+          <span class="steam" style="left:24%; height:44px; --drift:-8px; animation-delay:0.4s"></span>
+          <span class="steam" style="left:46%; height:58px; --drift:8px;  animation-delay:1.8s"></span>
+          <span class="steam" style="left:68%; height:40px; --drift:-6px; animation-delay:3s"></span>
+        </div>
+        <svg viewBox="0 0 220 130" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="110" cy="98" rx="92" ry="16" fill="rgba(0,0,0,0.35)"/>
+          <path d="M18 40 h184 a14 14 0 0 1 14 14 v20 a30 30 0 0 1 -30 30 h-152 a30 30 0 0 1 -30 -30 v-20 a14 14 0 0 1 14 -14 z"
+                fill="#e9dfca" stroke="#c9bb98" stroke-width="2"/>
+          <path d="M22 58 h176" stroke="#c9bb98" stroke-width="2"/>
+          <ellipse cx="110" cy="60" rx="84" ry="10" fill="#6fb7b0" opacity="0.85"/>
+          <ellipse cx="110" cy="60" rx="84" ry="10" fill="none" stroke="#3f8a83" stroke-width="1.5" opacity="0.6"/>
+          <rect x="4" y="46" width="10" height="34" rx="5" fill="#8a6a3c"/>
+          <rect x="206" y="46" width="10" height="34" rx="5" fill="#8a6a3c"/>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <section id="shots">
+    <div class="sec-head reveal">
+      <span class="sec-num">01</span>
+      <h2>画面</h2>
+    </div>
+    <div class="sec-rule reveal"></div>
+
+    <div class="shots reveal">
+      <figure>
+        <img src="../assets/yumori-01.png" alt="連続記録の画面" loading="lazy">
+        <figcaption>連続9日目の湯船</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/yumori-02.png" alt="放置して湯が濁った画面" loading="lazy">
+        <figcaption>7日サボった湯船</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/yumori-03.png" alt="入浴タイマーの画面" loading="lazy">
+        <figcaption>5分の入浴タイマー</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="sec-head reveal">
+      <span class="sec-num">02</span>
+      <h2>仕組み</h2>
+    </div>
+    <div class="sec-rule reveal"></div>
+
+    <div class="features">
+      <article class="feature reveal">
+        <span class="f-num">ICHI —</span>
+        <h3>5分のタイマーと、3秒の宣言</h3>
+        <p>
+          入浴をスタートすると5分のタイマーが動きます。肩まで浸かって、ただ待つ時間。
+          記録の確定は<strong>3秒間の長押し</strong>。うっかり押すのではなく、自分で宣言するための時間です。
+        </p>
+      </article>
+
+      <article class="feature reveal">
+        <span class="f-num">NI —</span>
+        <h3>称号と、手ぬぐい</h3>
+        <p>
+          続けた日数に応じて、<strong>見習いから風呂キャン撲滅マスターまで</strong>称号が上がり、
+          達成の証として手ぬぐいが増えていきます。直近35日の記録はカレンダーで一覧できます。
+        </p>
+      </article>
+
+      <article class="feature reveal">
+        <span class="f-num">SAN —</span>
+        <h3>サボると、湯が濁る</h3>
+        <p>
+          湯船に浸からない日が続くと、画面の湯がすこしずつ濁り、湯垢が浮き、湯気が止まります。
+          責める通知は鳴りません。<strong>湯船が静かに教えてくれるだけ。</strong>
+          もう一度浸かれば、湯はすぐ澄んだ色を取り戻します。
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section id="privacy">
+    <div class="sec-head reveal">
+      <span class="sec-num">03</span>
+      <h2>プライバシー</h2>
+    </div>
+    <div class="sec-rule reveal"></div>
+
+    <div class="privacy-box reveal">
+      <p>
+        湯守は<strong>個人情報を一切収集しません</strong>。
+        アカウント登録は不要で、通信も行わず、入浴の記録はすべて端末の中だけに保存されます。
+        解析ツールも広告もありません。
+      </p>
+      <a class="gold-link" href="../privacy/yumori/">プライバシーポリシー全文</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="enso">湯</div>
+    <a class="home-link" href="../">← ほかのアプリを見る</a>
+    <p>&copy; 2026 KODOUGU-SHA</p>
+  </footer>
+
+</div>
+
+<script>
+  const obs = new IntersectionObserver((entries)=>{
+    for(const e of entries){
+      if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); }
+    }
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
