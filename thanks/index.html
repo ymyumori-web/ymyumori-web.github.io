@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>送信しました — 小道具舎</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;800&family=Zen+Kaku+Gothic+New:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F7F4EE;
+    --paper-2: #FFFFFF;
+    --ink: #1A1C20;
+    --ink-mid: #4A4E55;
+    --ink-dim: #83878E;
+    --shu: #B54334;
+    --line: rgba(26,28,32,0.14);
+    --line-soft: rgba(26,28,32,0.08);
+    --disp: 'Shippori Mincho', serif;
+    --body: 'Zen Kaku Gothic New', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper: #141519;
+      --paper-2: #1C1E23;
+      --ink: #ECEAE4;
+      --ink-mid: #B9B7B0;
+      --ink-dim: #7E8189;
+      --shu: #D96A52;
+      --line: rgba(236,234,228,0.16);
+      --line-soft: rgba(236,234,228,0.08);
+    }
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin: 0; min-height: 100vh;
+    background: var(--paper); color: var(--ink);
+    font-family: var(--body); font-size: 15px;
+    line-height: 2.0; letter-spacing: 0.02em;
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .card{ max-width: 460px; text-align: center; }
+  .seal{
+    width: 44px; height: 44px; border-radius: 7px;
+    background: var(--shu); color: #F7F4EE;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--disp); font-weight: 600; font-size: 21px;
+    margin-bottom: 30px;
+  }
+  h1{
+    font-family: var(--disp); font-weight: 600;
+    font-size: 27px; letter-spacing: 0.12em;
+    margin: 0 0 18px;
+  }
+  p{ color: var(--ink-mid); font-weight: 300; margin: 0 0 12px; }
+  .note{ font-size: 13px; color: var(--ink-dim); margin-top: 26px; }
+  .home{
+    display: inline-flex; align-items: center; gap: 9px;
+    margin-top: 34px; padding: 12px 28px;
+    font-size: 13.5px; letter-spacing: 0.1em;
+    color: var(--ink); text-decoration: none;
+    border: 1px solid var(--line); border-radius: 999px;
+    transition: color .2s ease, border-color .2s ease;
+  }
+  .home::before{ content: "←"; color: var(--shu); }
+  .home:hover{ color: var(--shu); border-color: var(--shu); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="seal">小</div>
+    <h1>送信しました</h1>
+    <p>お問い合わせいただき、ありがとうございます。</p>
+    <p>内容を確認のうえ、数日以内にご返信します。</p>
+    <p class="note">
+      返信が届かない場合、迷惑メールフォルダに入っていることがあります。<br>
+      お急ぎの場合は ym.yumori@gmail.com まで直接ご連絡ください。
+    </p>
+    <a class="home" href="../">小道具舎にもどる</a>
+  </div>
+</body>
+</html>
